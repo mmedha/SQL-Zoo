@@ -1,4 +1,67 @@
 #********** GUEST HOUSE **********
+#   ******** EASY ********
+# Q.1 Guest 1183. Give the booking_date and the number of nights for guest 1183.
+# Ans
+
+Select booking_date, nights 
+                            From booking 
+                                         Where guest_id = '1183';
+                                         
+..............................................................................................................
+# Q.2 When do they get here? List the arrival time and the first and last names for all guests 
+ due to arrive on 2016-11-05, order the output by time of arrival.
+# Ans
+
+Select arrival_time, first_name, last_name 
+from booking B
+              Join guest G
+                           on B.guest_id = G.id 
+Where booking_date = '2016-11-05'
+                                 Order by arrival_time ;
+                                 
+.............................................................................................................
+ # Q.3 Look up daily rates. Give the daily rate that should be paid for bookings with ids 5152, 5165, 5154 and 5295.
+ Include booking id, room type, number of occupants and the amount.
+# Ans 
+
+Select booking_id, room_type_requested, occupants, amount 
+                 
+           From booking B
+                                                                          
+                          join rate R on 
+                                                 B.room_type_requested = R.room_type
+                              and                 B.occupants = R.occupancy
+                             
+                             Where B.booking_id = 5152 OR
+                                   B.booking_id = 5165 OR 
+                                   B.booking_id = 5154 OR 
+                                   B.booking_id = 5295  ; 
+.............................................................................................................
+#Q.4 Who’s in 101? Find who is staying in room 101 on 2016-12-03, include first name, last name and address.
+# Ans
+
+Select first_name, last_name, address 
+           From guest G 
+                         Join booking B on B.guest_id = G.id
+     Where
+           B.booking_date = '2016-12-03'
+       and 
+           B.room_no = '101';
+.................................................................................................................
+# Q.5 How many bookings, how many nights? For guests 1185 and 1270 show the number of bookings made and the total number nights. 
+  Your output should include the guest id and the total number of bookings and the total number of nights.
+# Ans 
+
+Select guest_id, COUNT(nights), SUM(nights) 
+     
+   From booking 
+                  Where guest_id = 1185 
+                  Or    guest_id = 1270
+                  
+   Group by guest_id;
+...........................................................................................................................   
+...........................................................................................................................
+
 #   ********* MEDIUM *********
 # Q.6 Ruth Cadbury. Show the total amount payable by guest Ruth Cadbury for her room bookings. 
 #      You should JOIN to the rate table using room_type_requested and occupants.
@@ -11,7 +74,7 @@ join  rate R on B.occupants = R.occupancy
 join guest G on B.guest_id = G.id 
 
 where first_name = 'Ruth' 
-                          and last_name = 'Cadbury'
+                          and last_name = 'Cadbury';
 
 #............................................................................................................
 
@@ -30,7 +93,7 @@ join
                                                                                          group by 1) x
 on B.booking_id = x.booking_id
 
-                     where B.booking_id = 5128
+                     where B.booking_id = 5128;
 #.............................................................................................................        
 
 #Q.8 Edinburgh Residents. For every guest who has the word “Edinburgh” in their address show the total number of nights booked.
@@ -44,7 +107,7 @@ left join booking B on A.id = B.guest_id
 
 where address like '%Edinburgh%'
                                 group by  first_name, last_name, address
-                                                                         order by last_name,first_name
+                                                                         order by last_name, first_name;
                                                                          
 # ......................................................................................................
 
@@ -55,7 +118,7 @@ where address like '%Edinburgh%'
 Select booking_date, count(booking_id) from booking  
                                                    group by booking_date
  having (booking_date >= '2016-11-25')and 
-                                          (booking_date <='2016-12-01')
+                                          (booking_date <='2016-12-01');
                                                       
 #...........................................................................................................
 #Q.10 How many guests? Show the number of guests in the hotel on the night of 2016-11-21. 
@@ -66,4 +129,4 @@ Select sum(occupants) from booking
 
                                     where booking_date <= '2016-11-21'
                                     
-and DATE_ADD(booking_date , INTERVAL nights DAY) > '2016-11-21'
+and DATE_ADD(booking_date , INTERVAL nights DAY) > '2016-11-21';
