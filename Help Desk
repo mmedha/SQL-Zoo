@@ -1,0 +1,134 @@
+# ************************    Help Desk     ***************************
+#           *******************  Easy  *********************
+# Q.No 1 There are three issues that include the words "index" and "Oracle". Find the call_date for each of them
+# Ans
+
+Select call_date, call_ref 
+      From Issue 
+                    Where 
+                         Detail Like '%Index%' 
+                    AND  Detail Like '%Oracle%' ;
+.................................................................................................................
+# Q.No 2 Samantha Hall made three calls on 2017-08-14. Show the date and time for each
+# Ans
+
+Select I.call_date, S.first_name, S.last_name 
+       From Issue I
+                     Join  Caller S  on S.Caller_id = I.Caller_id 
+                     
+       Where (S.first_name = 'Samantha') 
+         and (S.last_name = 'Hall')
+         and date(call_date)  = '2017-08-14';
+.....................................................................................................................
+
+Q.No 3 There are 500 calls in the system (roughly). Write a query that shows the number that have each status.
+# Ans 
+
+SELECT I.Status, Count(C.Caller_id) as Volume 
+     From Issue I 
+                  Join Caller C on I.Caller_id = C.Caller_id
+       
+     Where I.Status = 'Closed' 
+        OR I.Status = 'Open'
+  Group by I.Status ;
+  
+ ............................................................................................................................
+ 
+ #Q.No 4 Calls are not normally assigned to a manager but it does happen. 
+   How many calls have been assigned to staff who are at Manager Level?
+ # Ans
+ 
+ Select Count(I.Call_ref) as mlcc 
+        From Issue I 
+                    Join Staff S on I.Assigned_to = S.Staff_code
+                    Join Level L on (S.Level_code = L.Level_code)
+                    
+        Where L.Manager = 'Y' ;
+.....................................................................................................................
+
+#Q.No 5 How the manager for each shift. Your output should include the shift date and type; 
+also the first and last name of the manager.
+# Ans
+
+Select Shift_date, Shift_type, Manager, First_name, Last_name
+    From Shift A 
+                 Join  Staff B on B.Staff_code = A.Manager
+              Order by Shift_date
+              
+.................................................................................................................
+
+**********************************  MEDIUM  **************************************
+
+#Q.No 6 List the Company name and the number of calls for those companies with more than 18 calls.
+  Select X.Company_name, X.cc from 
+# Ans 
+
+Select X.Company_name, X.cc 
+     From 
+             (Select A.Company_name, Count(C.Call_ref) as cc 
+                    From Customer A
+                                  Join Caller B on B.Company_ref = A.Company_ref
+                                  Join Issue C on C.Caller_id = B.Caller_id
+                         Group by A.Company_name )X
+                            Where X.cc > 18;
+......................................................................................................................
+#Q.No 7 Find the callers who have never made a call. Show first name and last name
+# Ans
+
+Select C.First_name, C.Last_name 
+        From Caller C
+                    Where C.Caller_id NOT IN ( Select Caller_id from Issue);
+..................................................................................................................
+#Q.No 8 For each customer show: Company name, contact name, number of calls where the number of calls is fewer than 5
+# Ans
+
+Select X.Company_name, Y.first_name, Y.last_name, X.nc 
+   From 
+        ((Select A.Company_name, A.Contact_id, Count(C.Call_ref) as nc 
+             From Customer A
+                            Join Caller B on B.Company_ref = A.Company_ref
+                             Join Issue C on C.Caller_id = B.Caller_id
+                              Group by  A.Company_name, A.Contact_id
+                                Having  Count(C.Call_ref) < 5) X 
+                                
+             JOIN Caller Y   on X.Contact_id = Y.Caller_id);
+..................................................................................................................
+#Q.No 9 For each shift show the number of staff assigned. 
+Beware that some roles may be NULL and that the same person might have been assigned to multiple roles 
+(The roles are 'Manager', 'Operator', 'Engineer1', 'Engineer2').
+# Ans
+
+SELECT A.Shift_date, A.Shift_type, COUNT(DISTINCT desination) AS cw
+     FROM  
+     ( SELECT shift_date, shift_type, Manager AS desination
+		              From Shift
+		                         Union All
+		  SELECT shift_date, shift_type, Operator AS desination 
+                  From Shift
+		                         Union All
+		  SELECT shift_date, shift_type, Engineer1 AS desination
+		              FROM Shift
+                             Union All
+		  SELECT shift_date, shift_type, Engineer2 AS desination
+		              FROM Shift )A
+	    
+      GROUP BY A.Shift_date, A.Shift_type;
+....................................................................................................................
+#Q.No 10 Caller 'Harry' claims that the operator who took his most recent call was abusive and insulting. 
+Find out who took the call (full name) and when.
+# Ans
+
+Select * From 
+              (Select A.First_name, A.Last_name, B.Call_date from  Staff A
+         Join Issue B on B.Taken_by = A.Staff_code
+         Join Caller C on C.Caller_id = B.Caller_id
+              
+              Where C.First_name = 'Harry')X
+               Where call_date in 
+                                 (Select Max(Call_date) from  
+                                 (Select A.First_name, A.Last_name, B.Call_date from  Staff A
+                                  Join Issue B on B.Taken_by = A.Staff_code
+                                  Join Caller C on C.Caller_id = B.Caller_id
+                                  Where C.First_name = 'Harry')y)
+
+......................................................................................................................                  
